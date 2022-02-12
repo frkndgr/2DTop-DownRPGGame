@@ -6,9 +6,10 @@ public class PlayerMovement : MonoBehaviour
 {
     public float moveSpeed;
 
-    private float attackTime = 0.25f;
+    /*private float attackTime = 0.25f;
     private float attackCounter = 0.25f;
     private bool isAttacking; 
+    */
     public Rigidbody2D rb;
     public Animator anim;
 
@@ -20,10 +21,20 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        Move();
-        Animate();
+        
         ProcessInputs();
+        Animate();
+        Move();
+        
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            
+            Attack();
+            
+        }
+        
 
+    
         
 
     }
@@ -48,9 +59,9 @@ public class PlayerMovement : MonoBehaviour
         }
 
         moveDirection = new Vector2(moveX, moveY).normalized;
-
         
-        if (isAttacking)
+        
+        /*if (isAttacking)
         {
             rb.velocity = Vector2.zero;
             attackCounter -= Time.deltaTime;
@@ -67,7 +78,7 @@ public class PlayerMovement : MonoBehaviour
             anim.SetBool("AnimAttack", true);
             isAttacking = true;
         }
-
+        */
         
     }
 
@@ -83,7 +94,14 @@ public class PlayerMovement : MonoBehaviour
         anim.SetFloat("AnimMoveMagnitude", moveDirection.magnitude);
         anim.SetFloat("AnimLastMoveX", lastMoveDirection.x);
         anim.SetFloat("AnimLastMoveY", lastMoveDirection.y);
+        
+    }
 
+    void Attack()
+    {
+        
+        anim.SetTrigger("AnimAttack");
+        
     }
 
 }
