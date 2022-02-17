@@ -2,52 +2,110 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Skeleton : MonoBehaviour
+public class Skeleton : Enemy
 {
-    
-    
-    public int maxHealth = 100;
-    int currentHealth;
-
+    private Rigidbody2D rb;
+    public float chaseRadius;
+    public float attackRadius;
     private Animator anim;
 
     public Transform homePos;
 
     private Transform target;
-    [SerializeField]
-    private float speed = 0f;
-    [SerializeField]
-    private float maxRange = 0f;
-    [SerializeField]
-    private float minRange = 0f;
     
 
 
+    public int skeletonDamage = 20;
 
+    
 
+    
     void Start()
     {
-        currentHealth = maxHealth;
-
+        currentState = EnemyState.idle;
+        rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        target = FindObjectOfType<PlayerMovement>().transform;
+        target = GameObject.FindWithTag("Player").transform;
     }
 
-    void Update() 
+    
+
+    void FixedUpdate() 
     {
-        if (Vector3.Distance(target.position, transform.position) <= maxRange && Vector3.Distance(target.position, transform.position) >= minRange)
+        CheckDistance();
+        /*if (Vector3.Distance(target.position, transform.position) <= maxRange && Vector3.Distance(target.position, transform.position) > minRange)
         {
             
             fallowPlayer();
         }
-        else if(Vector3.Distance(target.position, transform.position) >= maxRange)
+        else if(Vector3.Distance(target.position, transform.position) > maxRange)
         {
             GoHome();
+        }*/
+    }
+
+    void CheckDistance()
+    {
+        if(Vector3.Distance(target.position, transform.position) <= chaseRadius && Vector3.Distance(target.position, transform.position) > attackRadius )
+        {
+            if (currentState == EnemyState.idle || currentState == EnemyState.walk && currentState != EnemyState.stagger )
+            {
+                Vector3 temp = Vector3.MoveTowards(transform.position, target.position, speed * Time.deltaTime);
+                
+                changeAnim(temp - transform.position);
+                rb.MovePosition(temp);
+                ChangeState(EnemyState.walk);
+                anim.SetBool("isMoving", true);
+            
+            }
+        }else if(Vector3.Distance(target.position, transform.position) > chaseRadius )
+        {
+            
+            anim.SetBool("isMoving", false);
         }
     }
 
-    public void fallowPlayer()
+    private void SetAnimFloat(Vector2 setVector)
     {
+        anim.SetFloat("moveX", setVector.x);
+        anim.SetFloat("moveY", setVector.y);
+    }
+    private void changeAnim(Vector2 direction)
+    {
+        if(Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+        {
+            if (direction.x >0)
+            {
+                SetAnimFloat(Vector2.right);
+            }else if (direction.x < 0)
+            {
+                SetAnimFloat(Vector2.left);
+            }
+
+        }else if(Mathf.Abs(direction.x) < Mathf.Abs(direction.y))
+        {
+            if (direction.y > 0)
+            {
+                SetAnimFloat(Vector2.up);
+            }else if (direction.y < 0)
+            {
+                SetAnimFloat(Vector2.down);
+            }
+        }
+    }
+
+    private void ChangeState(EnemyState newState)
+    {
+        if (currentState != newState)
+        {
+            currentState = newState;
+        }
+    }
+
+    /*public void fallowPlayer()
+    {
+        
+        
         speed = 0.5f;
         anim.SetBool("attack", false);
         anim.SetBool("isMoving", true);
@@ -63,6 +121,12 @@ public class Skeleton : MonoBehaviour
             
             
         }
+            
+        
+        
+
+        
+        
     }
 
     public void GoHome()
@@ -71,7 +135,7 @@ public class Skeleton : MonoBehaviour
         anim.SetFloat("moveY", (homePos.position.y - transform.position.y));
         transform.position = Vector3.MoveTowards(transform.position, homePos.position, speed * Time.deltaTime);
 
-        if (Vector3.Distance(transform.position, homePos.position) == 0)
+        if (Vector3.Distance(transform.position, homePos.position) == 0 )
         {
             anim.SetBool("isMoving", false);
         }
@@ -101,6 +165,20 @@ public class Skeleton : MonoBehaviour
         GetComponent<Collider2D>().enabled = false;
         this.gameObject.SetActive(false);
     }
+
+    private void OnTriggerEnter2D(Collider2D other) 
+    {
+
+        if (other.CompareTag("Player"))
+        {
+            other.GetComponent<PlayerMovement>().TakeDamage(skeletonDamage);
+        }
+
+        
+        
+    }*/
+
+    
 
     
 }
