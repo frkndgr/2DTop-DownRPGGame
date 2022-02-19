@@ -7,44 +7,60 @@ public class Skeleton : Enemy
     private Rigidbody2D rb;
     public float chaseRadius;
     public float attackRadius;
-    private Animator anim;
+    public Animator anim;
 
     public Transform homePos;
 
-    private Transform target;
+    public Transform target;
     
 
 
     public int skeletonDamage = 20;
+
+    public PlayerMovement playerMovement;
+
+    
 
     
 
     
     void Start()
     {
+        maxHealth = 100;
+        currenthealth = 100;
         currentState = EnemyState.idle;
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         target = GameObject.FindWithTag("Player").transform;
+        
     }
 
     
 
     void FixedUpdate() 
     {
-        CheckDistance();
-        /*if (Vector3.Distance(target.position, transform.position) <= maxRange && Vector3.Distance(target.position, transform.position) > minRange)
+        //CheckDistance();
+        if (Vector3.Distance(target.position, transform.position) <= chaseRadius && Vector3.Distance(target.position, transform.position) > attackRadius && playerMovement.warriorCurrentHealth >= 0)
         {
             
             fallowPlayer();
         }
-        else if(Vector3.Distance(target.position, transform.position) > maxRange)
+        else if(Vector3.Distance(target.position, transform.position) > chaseRadius )
         {
             GoHome();
-        }*/
+        }
+
+        if (playerMovement.warriorCurrentHealth <= 0)
+        {
+            speed = 0.4f;
+            attackRadius = 4f;
+            anim.SetBool("attack", false);
+            anim.SetBool("isMoving", true);
+            GoHome();
+        }
     }
 
-    void CheckDistance()
+    /*void CheckDistance()
     {
         if(Vector3.Distance(target.position, transform.position) <= chaseRadius && Vector3.Distance(target.position, transform.position) > attackRadius )
         {
@@ -93,6 +109,7 @@ public class Skeleton : Enemy
             }
         }
     }
+    */
 
     private void ChangeState(EnemyState newState)
     {
@@ -101,8 +118,9 @@ public class Skeleton : Enemy
             currentState = newState;
         }
     }
+    
 
-    /*public void fallowPlayer()
+    public void fallowPlayer()
     {
         
         
@@ -113,7 +131,7 @@ public class Skeleton : Enemy
         anim.SetFloat("moveY", (target.position.y - transform.position.y));
         transform.position = Vector3.MoveTowards(transform.position, target.transform.position, speed * Time.deltaTime);
         
-        if (Vector3.Distance(target.position, transform.position) <= minRange)
+        if (Vector3.Distance(target.position, transform.position) <= attackRadius)
         {
             anim.SetBool("isMoving", false);
             speed = 0f;
@@ -144,11 +162,11 @@ public class Skeleton : Enemy
     
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
+        currenthealth -= damage;
 
         anim.SetTrigger("hurt");
 
-        if (currentHealth <= 0)
+        if (currenthealth <= 0)
         {
             StartCoroutine(DieCo());
         }
@@ -158,11 +176,12 @@ public class Skeleton : Enemy
     IEnumerator DieCo()
     {
         speed = 0f;
-        maxRange = 0f;
+        attackRadius = 4f;
+        
         anim.SetBool("dead", true);
+        GetComponent<Collider2D>().enabled = false;
         yield return new WaitForSeconds(5f);
 
-        GetComponent<Collider2D>().enabled = false;
         this.gameObject.SetActive(false);
     }
 
@@ -176,7 +195,7 @@ public class Skeleton : Enemy
 
         
         
-    }*/
+    }
 
     
 
