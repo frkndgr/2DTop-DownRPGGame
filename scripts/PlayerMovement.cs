@@ -2,36 +2,71 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum PlayerState
+{
+    walk,
+    attack,
+    stagger,
+    idle,
+
+}
+
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed;
+    public PlayerState currentState;
+    [SerializeField]
+    private float moveSpeed =0f;
+    public int warriorHealth = 100;
+    public int warriorCurrentHealth = 100;
 
-    /*private float attackTime = 0.25f;
-    private float attackCounter = 0.25f;
-    private bool isAttacking; 
-    */
-    public Rigidbody2D rb;
-    public Animator anim;
+    public HealthManager healthManager;
+
+
+
+    
+    private Rigidbody2D rb;
+    private Animator anim;
 
     private Vector2 moveDirection;
     private Vector2 lastMoveDirection;
+
+    [SerializeField]
+    private int attackDamage = 40;
+    [SerializeField]
+    private float attackRate = 2f;
+    float nextAttackTime = 0f;
     
 
 
-
+    private void Start() 
+    {
+        warriorCurrentHealth = warriorHealth;
+        healthManager.SetMaxHealth(warriorHealth);
+        currentState = PlayerState.walk;
+        rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();    
+    }
     void Update()
     {
         
         ProcessInputs();
         Animate();
-        Move();
+
         
-        if (Input.GetKeyDown(KeyCode.Space))
+        
+        if (Time.time >= nextAttackTime)
         {
+           if (Input.GetKeyDown(KeyCode.Space))
+            {
             
-            Attack();
+                Attack();
+                nextAttackTime = Time.time + 1f / attackRate;
             
+            } 
         }
+        
+
+        
         
 
     
@@ -39,10 +74,11 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
+
     private void FixedUpdate() 
     {
         
-
+        Move();
         
     }
 
@@ -61,24 +97,7 @@ public class PlayerMovement : MonoBehaviour
         moveDirection = new Vector2(moveX, moveY).normalized;
         
         
-        /*if (isAttacking)
-        {
-            rb.velocity = Vector2.zero;
-            attackCounter -= Time.deltaTime;
-            if (attackCounter <=0)
-            {
-                anim.SetBool("AnimAttack", false);
-                isAttacking = false;
-            }
-        }
         
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            attackCounter = attackTime;
-            anim.SetBool("AnimAttack", true);
-            isAttacking = true;
-        }
-        */
         
     }
 
@@ -103,5 +122,36 @@ public class PlayerMovement : MonoBehaviour
         anim.SetTrigger("AnimAttack");
         
     }
+
+    
+
+    public void TakeDamage(int skeletonDamage )
+    {
+        warriorCurrentHealth -= skeletonDamage;
+        healthManager.SetHealth(warriorCurrentHealth);
+
+        anim.SetTrigger("hurt");
+
+        if (warriorCurrentHealth <= 0)
+        {
+            StartCoroutine(DieCo());
+            
+        }
+
+    }
+
+    IEnumerator DieCo()
+    {
+        moveSpeed = 0f;
+        GetComponent<Collider2D>().enabled = false;
+        anim.SetBool("dead", true);
+        yield return new WaitForSeconds(1f);
+
+        
+        
+    }
+
+    
+   
 
 }
