@@ -12,26 +12,26 @@ public enum EnemyState
 public class Enemy : MonoBehaviour
 {
     public EnemyState currentState;
-    public FloatValue maxHealth;
-    public float health;
+    public int maxHealth;
+    public int currenthealth;
     public string enemyName;
     public int baseAttack;
     public float speed;
 
     private void Awake() 
     {
-        health = maxHealth.initialValue;
+        currenthealth = maxHealth;
     }
     
-    private void TakeDamage(float damage)
+    private void TakeDamage(int damage)
     {
-        health -= damage;
-        if (health <=0)
+        currenthealth -= damage;
+        if (currenthealth <=0)
         {
             this.gameObject.SetActive(false);
         }
     }
-    public void Knock(Rigidbody2D rb, float knockTime, float damage)
+    public void Knock(Rigidbody2D rb, float knockTime, int damage)
     {
         StartCoroutine(KnockCo(rb, knockTime));
         TakeDamage(damage);
@@ -46,8 +46,11 @@ public class Enemy : MonoBehaviour
             rb.velocity = Vector2.zero;
             currentState = EnemyState.idle;
             rb.velocity = Vector2.zero;
+            
         }
     }
+
+
 
     
 }
