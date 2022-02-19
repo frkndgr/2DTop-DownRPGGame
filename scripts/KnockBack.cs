@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KnockBack : MonoBehaviour
+/*public class KnockBack : MonoBehaviour
 {
 
     public float thrust;
@@ -34,10 +34,14 @@ public class KnockBack : MonoBehaviour
                 }
                 if(other.gameObject.CompareTag("Player"))
                 {
-                    if (other.GetComponent<playerMovement2>().currentState != PlayerState.stagger)
+                    if (other.GetComponent<PlayerMovement>().currentState != PlayerState.stagger)
                     {
-                        hit.GetComponent<playerMovement2>().currentState = PlayerState.stagger;
-                        other.GetComponent<playerMovement2>().Knock(knockTime, damage);
+                        if (other.GetComponent<PlayerMovement>().currentState != PlayerState.stagger)
+                        {
+                            hit.GetComponent<PlayerMovement>().currentState = PlayerState.stagger;
+                            other.GetComponent<PlayerMovement>().Knock(knockTime, attackDamage);
+                            
+                        }
                     }
                 }
             }    
@@ -54,4 +58,4 @@ public class KnockBack : MonoBehaviour
         
         
     
-}
+}*/
