@@ -21,7 +21,15 @@ public class WarriorHit : MonoBehaviour
         if(other.CompareTag("breakable"))
         {
             other.GetComponent<BreakableRock>().Smash();
+            
         }
+
+        if (other.CompareTag("enemy"))
+        {
+            other.GetComponent<Skeleton>().TakeDamage(20);
+        }
+
+        
         
     }
 }
