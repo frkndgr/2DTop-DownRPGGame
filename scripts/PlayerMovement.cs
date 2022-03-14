@@ -20,7 +20,8 @@ public class PlayerMovement : MonoBehaviour
     public int warriorCurrentHealth = 100;
 
     public HealthManager healthManager;
-
+    //[SerializeField] private HealthManager health;
+    public GameOverScreen gameOverScreen;
 
 
     
@@ -29,13 +30,15 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector2 moveDirection;
     private Vector2 lastMoveDirection;
+    private Vector2 initPos;
 
-    [SerializeField]
-    private int attackDamage = 40;
+    
+    //private int attackDamage = 40;
     [SerializeField]
     private float attackRate = 2f;
     float nextAttackTime = 0f;
     float nextSkillTime = 0f;
+    //public SpriteRenderer MySpriteRenderer;
     
 
 
@@ -45,7 +48,9 @@ public class PlayerMovement : MonoBehaviour
         healthManager.SetMaxHealth(warriorHealth);
         currentState = PlayerState.walk;
         rb = GetComponent<Rigidbody2D>();
-        anim = GetComponent<Animator>();    
+        anim = GetComponent<Animator>();
+        //initPos = transform.position;  
+        //health.Initialize(warriorHealth,warriorHealth);  
     }
     void Update()
     {
@@ -72,22 +77,16 @@ public class PlayerMovement : MonoBehaviour
         {
             if(Input.GetKeyDown(KeyCode.Q))
             {
+                GetComponent<Collider2D>().enabled = false;
                 moveSpeed = 0f;
                 StartCoroutine(Attack2());
                 nextSkillTime = Time.time + 5f / attackRate;
             }
         }
         }
-        
-        
-        
 
         
         
-
-    
-        
-
     }
 
 
@@ -137,7 +136,7 @@ public class PlayerMovement : MonoBehaviour
         
         anim.SetTrigger("AnimAttack");
         yield return new WaitForSeconds(0.3f);
-        moveSpeed = 1.2f;
+        moveSpeed = 0.75f;
         
         
     }
@@ -147,7 +146,8 @@ public class PlayerMovement : MonoBehaviour
         
         anim.SetTrigger("AnimAttack2");
         yield return new WaitForSeconds(1f);
-        moveSpeed = 1.2f;
+        GetComponent<Collider2D>().enabled = true;
+        moveSpeed = 0.75f;
         
         
     }
@@ -158,6 +158,8 @@ public class PlayerMovement : MonoBehaviour
     {
         warriorCurrentHealth -= skeletonDamage;
         healthManager.SetHealth(warriorCurrentHealth);
+        //health.MyCurrentValue -= skeletonDamage;
+        
 
         anim.SetTrigger("hurt");
 
@@ -171,17 +173,34 @@ public class PlayerMovement : MonoBehaviour
 
     IEnumerator DieCo()
     {
+        gameOverScreen.Setup();
         StopCoroutine(Attack());
         StopCoroutine(Attack2());
         nextAttackTime = 0f;
         moveSpeed = 0f;
         GetComponent<Collider2D>().enabled = false;
         anim.SetBool("dead", true);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(3f);
+        //MySpriteRenderer.enabled = false;
+        //StartCoroutine(RespawnCo());
+
 
         
         
     }
+
+    /*public IEnumerator RespawnCo()
+    {
+        warriorHealth = 100;
+        yield return new WaitForSeconds(1f);
+        transform.position = initPos;
+        MySpriteRenderer.enabled = true;
+        moveSpeed = 0.75f;
+        warriorCurrentHealth = warriorHealth;
+        anim.SetTrigger("respawn");
+        
+
+    }*/
 
     
    
